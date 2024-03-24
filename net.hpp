@@ -62,6 +62,13 @@ char* resolve_net(const char* domain) {
 	return inet_ntoa(addr);
 }
 
+char* getPeerIp_net(int socket) {
+	struct sockaddr_in client_addr;
+	int addr_len = sizeof(client_addr);
+	getpeername(socket, (struct sockaddr *)&client_addr, &addr_len);
+	return inet_ntoa(client_addr.sin_addr);
+}
+
 int close_net(int conn) {
 	#ifdef __WIN32
 		return closesocket(conn);
