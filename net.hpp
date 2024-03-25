@@ -1,5 +1,6 @@
 #ifdef __WIN32
 	#include <winsock2.h>
+	#include <ws2tcpip.h>
 #else
 	#include <arpa/inet.h>
 	#include <unistd.h>
@@ -39,7 +40,7 @@ int connect_net(const char* ip, const char* port) {
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(atoi(port));
 	addr.sin_addr.s_addr = inet_addr(ip);
-	connect(conn, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
+	if (connect(conn, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {return -1;}
 	return conn;
 }
 
@@ -51,15 +52,18 @@ int recv_net(int socket, char* buf, int size) {
 	return recv(socket, buf, size, 0);
 }
 
-char* resolve_net(const char* domain) {
+std::string resolve_net(const char* domain, const char* port) {
 	#ifdef __WIN32
 		WSADATA wsaData;
-		int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+		WSAStartup(MAKEWORD(2, 2), &wsaData);
 	#endif
-    struct hostent* remoteHost = gethostbyname(domain);
-	struct in_addr addr;
-	memcpy(&addr, remoteHost->h_addr_list[0], sizeof(struct in_addr));
-	return inet_ntoa(addr);
+    struct addrinfo hints, *res;
+    memset(&hints, 0, sizeof hints);
+    getaddrinfo(domain, port, &hints, &res);
+    struct sockaddr_in* addr = (struct sockaddr_in*)res->ai_addr;
+    char ipstr[INET_ADDRSTRLEN];
+    inet_ntop(res->ai_family, &addr->sin_addr, ipstr, sizeof(ipstr));
+	return ipstr;
 }
 
 char* getPeerIp_net(int socket) {
