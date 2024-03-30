@@ -4,21 +4,25 @@
 #else
 	#include <arpa/inet.h>
 	#include <unistd.h>
+	#include <netdb.h>
+	#include <cstring>
 #endif
 #include <cstdlib>
 #include <string>
-int listen_net(const char* port) {
+int listen_net(const char* ip, const char* port, const unsigned short int protocol=0) { // 0 for TCP | 1 for UDP
 	#ifdef __WIN32
 		WSADATA wsa;
 		WSAStartup(MAKEWORD(2,2), &wsa);
 	#endif
-	int listener = socket(AF_INET, SOCK_STREAM, 0);
+	int listener = 0;
+	if (protocol == 0) {listener = socket(AF_INET, SOCK_STREAM, 0);} // TCP
+	else if (protocol == 1) {listener = socket(AF_INET, SOCK_DGRAM, 0);} // UDP
 	const int enable = 1;
 	setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(int));
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(atoi(port));
-	addr.sin_addr.s_addr = INADDR_ANY;
+	addr.sin_addr.s_addr = atoi(ip);
 	bind(listener, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
 	listen(listener, SOMAXCONN);
 	return listener;
@@ -28,12 +32,14 @@ int accept_net(int listener) {
 	return accept(listener, 0, 0);
 }
 
-int connect_net(const char* ip, const char* port) {
+int connect_net(const char* ip, const char* port, const unsigned short int protocol=0) { // 0 for TCP | 1 for UDP
 	#ifdef __WIN32
 		WSADATA wsa;
 		WSAStartup(MAKEWORD(2,2), &wsa);
 	#endif
-	int conn = socket(AF_INET, SOCK_STREAM, 0);
+	int conn = 0;
+	if (protocol == 0) {conn = socket(AF_INET, SOCK_STREAM, 0);}
+	else if (protocol == 1) {conn = socket(AF_INET, SOCK_DGRAM, 0);}
 	const int enable = 1;
 	setsockopt(conn, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(int));
 	struct sockaddr_in addr;
@@ -68,7 +74,7 @@ std::string resolve_net(const char* domain, const char* port) {
 
 char* getPeerIp_net(int socket) {
 	struct sockaddr_in client_addr;
-	int addr_len = sizeof(client_addr);
+	socklen_t addr_len = sizeof(client_addr);
 	getpeername(socket, (struct sockaddr *)&client_addr, &addr_len);
 	return inet_ntoa(client_addr.sin_addr);
 }
