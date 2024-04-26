@@ -6,8 +6,10 @@
 	#include <unistd.h>
 	#include <netdb.h>
 #endif
-#include <cstdlib>
-int listen_net(const char* ip, const char* port, const unsigned short int protocol=0) { // 0 for TCP | 1 for UDP
+#include <stdlib.h>
+#include <stdio.h>
+
+int listen_net(const char* ip, const char* port, const unsigned short int protocol) { // 0 for TCP | 1 for UDP
 	#ifdef __WIN32
 		WSADATA wsa;
 		WSAStartup(MAKEWORD(2,2), &wsa);
@@ -24,7 +26,7 @@ int listen_net(const char* ip, const char* port, const unsigned short int protoc
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(atoi(port));
 	addr.sin_addr.s_addr = atoi(ip);
-	bind(listener, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
+	bind(listener, (struct sockaddr*)&addr, sizeof(addr));
 	listen(listener, SOMAXCONN);
 	return listener;
 }
@@ -33,7 +35,7 @@ int accept_net(int listener) {
 	return accept(listener, 0, 0);
 }
 
-int connect_net(const char* ip, const char* port, const unsigned short int protocol=0) { // 0 for TCP | 1 for UDP
+int connect_net(const char* ip, const char* port, const unsigned short int protocol) { // 0 for TCP | 1 for UDP
 	#ifdef __WIN32
 		WSADATA wsa;
 		WSAStartup(MAKEWORD(2,2), &wsa);
@@ -50,7 +52,7 @@ int connect_net(const char* ip, const char* port, const unsigned short int proto
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(atoi(port));
 	addr.sin_addr.s_addr = inet_addr(ip);
-	if (connect(conn, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {return -1;}
+	if (connect(conn, (struct sockaddr*)&addr, sizeof(addr)) < 0) {return -1;}
 	return conn;
 }
 
@@ -73,11 +75,11 @@ char* resolve_net(const char* domain, const char* port) {
 	#endif
 	struct addrinfo hints, *res;
 	if (getaddrinfo(domain, port, &hints, &res) != 0) {return (char*)"DNS server error";}
-	struct sockaddr_in* addr = (struct sockaddr_in*)res->ai_addr;
-	char ipstr[INET_ADDRSTRLEN];
+	struct sockaddr_in* addr = (struct sockaddr_in*)res->ai_addr;                         // DOMAIN HTTP  -> 2.2.3.2
+	char ipstr[INET_ADDRSTRLEN];                                                          // DOMAIN HTTPS -> 33.1.1.1
 	inet_ntop(res->ai_family, &addr->sin_addr, ipstr, sizeof(ipstr));
-	char* retip = ipstr;
-	return retip;
+	char* ipadr = ipstr;
+	return ipadr;
 }
 
 char* getPeerIp_net(int socket) {
