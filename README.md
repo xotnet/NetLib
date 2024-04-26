@@ -1,2 +1,2 @@
 # NetLib
-C++ network lib 
+C network lib 
