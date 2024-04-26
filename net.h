@@ -5,10 +5,8 @@
 	#include <arpa/inet.h>
 	#include <unistd.h>
 	#include <netdb.h>
-	#include <cstring>
 #endif
 #include <cstdlib>
-#include <string>
 int listen_net(const char* ip, const char* port, const unsigned short int protocol=0) { // 0 for TCP | 1 for UDP
 	#ifdef __WIN32
 		WSADATA wsa;
@@ -68,18 +66,18 @@ int recv_net(int socket, char* buf, int size) {
 	return recv(socket, buf, size, 0);
 }
 
-std::string resolve_net(const char* domain, const char* port) {
+char* resolve_net(const char* domain, const char* port) {
 	#ifdef __WIN32
 		WSADATA wsaData;
 		WSAStartup(MAKEWORD(2, 2), &wsaData);
 	#endif
 	struct addrinfo hints, *res;
-	memset(&hints, 0, sizeof hints);
-	getaddrinfo(domain, port, &hints, &res);
+	if (getaddrinfo(domain, port, &hints, &res) != 0) {return (char*)"DNS server error";}
 	struct sockaddr_in* addr = (struct sockaddr_in*)res->ai_addr;
 	char ipstr[INET_ADDRSTRLEN];
 	inet_ntop(res->ai_family, &addr->sin_addr, ipstr, sizeof(ipstr));
-	return ipstr;
+	char* retip = ipstr;
+	return retip;
 }
 
 char* getPeerIp_net(int socket) {
