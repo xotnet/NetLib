@@ -44,9 +44,6 @@ int connect_net(const char* ip, const char* port, const unsigned short int proto
 	if (protocol == 0) {conn = socket(AF_INET, SOCK_STREAM, 0);}
 	else if (protocol == 1) {conn = socket(AF_INET, SOCK_DGRAM, 0);}
 	const int enable = 1;
-	int netbuf_size = 1024 * 1024;
-	setsockopt(conn, SOL_SOCKET, SO_SNDBUF, (char*)&netbuf_size, sizeof(netbuf_size));
-	setsockopt(conn, SOL_SOCKET, SO_RCVBUF, (char*)&netbuf_size, sizeof(netbuf_size));
 	setsockopt(conn, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(int));
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
@@ -74,11 +71,13 @@ char* resolve_net(const char* domain, const char* port) {
 		WSAStartup(MAKEWORD(2, 2), &wsaData);
 	#endif
 	struct addrinfo hints, *res;
+    memset(&hints, 0, sizeof hints);
 	if (getaddrinfo(domain, port, &hints, &res) != 0) {return (char*)"DNS server error";}
-	struct sockaddr_in* addr = (struct sockaddr_in*)res->ai_addr;                         // DOMAIN HTTP  -> 2.2.3.2
-	char ipstr[INET_ADDRSTRLEN];                                                          // DOMAIN HTTPS -> 33.1.1.1
-	inet_ntop(res->ai_family, &addr->sin_addr, ipstr, sizeof(ipstr));
-	char* ipadr = ipstr;
+	struct sockaddr_in* addr = (struct sockaddr_in*)res->ai_addr;
+    char ipstr[INET_ADDRSTRLEN];
+    inet_ntop(res->ai_family, &addr->sin_addr, ipstr, sizeof(ipstr));
+	char* ipadr = new char[15];
+	strcpy(ipadr, ipstr);
 	return ipadr;
 }
 
