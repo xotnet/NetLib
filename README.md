@@ -1,4 +1,3 @@
-# NetLib
 C network lib for **Linux** and **Windows**
 
 To use the functions of this lib just add include file ```#include "net.h"``` or ```#include <net.h>``` without additional .lib and .a files and then you can use these methods:
