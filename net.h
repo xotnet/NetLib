@@ -5,7 +5,7 @@
 	#include <arpa/inet.h>
 	#include <unistd.h>
 	#include <netdb.h>
-	#include <cstring>
+	
 #endif
 #include <stdlib.h>
 #include <stdio.h>
@@ -77,7 +77,7 @@ char* resolve_net(const char* domain, const char* port) {
 	struct sockaddr_in* addr = (struct sockaddr_in*)res->ai_addr;
     char ipstr[INET_ADDRSTRLEN];
     inet_ntop(res->ai_family, &addr->sin_addr, ipstr, sizeof(ipstr));
-	char* ipadr = new char[15];
+	char* ipadr = (char*)malloc(15);
 	strcpy(ipadr, ipstr);
 	return ipadr;
 }
