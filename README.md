@@ -19,6 +19,6 @@ C network lib for **Linux** and **Windows**
 
 **send_net**(int socket, char* buf, int size) - **send data to socket**
 
-**resolve_net**(const char* domain, const char* port) - **convert domain to ip**
+**resolve_net**(const char* domain, const char* port, char* ipAddrOutput) - **convert domain to ip**
 
 **close_net**(int socket) - **close connection**
