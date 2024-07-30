@@ -66,14 +66,14 @@ int recv_net(int socket, char* buf, int size) {
 	return recv(socket, buf, size, 0);
 }
 
-void resolve_net(const char* domain, const char* port, char* ipOutput/*15 char*/) {
+void resolve_net(const char* domain, const char* port, char* ipOutput/*16 char*/) {
 	#ifdef __WIN32
 		WSADATA wsaData;
 		WSAStartup(MAKEWORD(2, 2), &wsaData);
 	#endif
 	struct addrinfo hints, *res;
     memset(&hints, 0, sizeof hints);
-	if (getaddrinfo(domain, port, &hints, &res) != 0) {strcpy(ipOutput, "DNS serv error");}
+	if (getaddrinfo(domain, port, &hints, &res) != 0) {strcpy(ipOutput, "DNS serv error"); return;}
 	struct sockaddr_in* addr = (struct sockaddr_in*)res->ai_addr;
     char ipstr[INET_ADDRSTRLEN];
     inet_ntop(res->ai_family, &addr->sin_addr, ipstr, sizeof(ipstr));
