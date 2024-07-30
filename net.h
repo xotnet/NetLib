@@ -8,7 +8,6 @@
 	#include <cstring>
 #endif
 #include <stdlib.h>
-#include <stdio.h>
 
 int listen_net(const char* ip, const char* port, const unsigned short int protocol) { // 0 for TCP | 1 for UDP
 	#ifdef __WIN32
