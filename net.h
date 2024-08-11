@@ -5,7 +5,7 @@
 	#include <arpa/inet.h>
 	#include <unistd.h>
 	#include <netdb.h>
-	#include <cstring>
+	#include <string.h>
 #endif
 #include <stdlib.h>
 
