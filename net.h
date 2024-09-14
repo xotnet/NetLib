@@ -9,7 +9,7 @@
 #endif
 #include <stdlib.h>
 
-int listen_net(const char* ip, const char* port, const unsigned short int protocol) { // 0 for TCP | 1 for UDP
+int listen_net(const char* ip, const char* port, const unsigned short int protocol /* 0 - TCP | 1 - UDP*/ ) {
 	#ifdef __WIN32
 		WSADATA wsa;
 		WSAStartup(MAKEWORD(2,2), &wsa);
@@ -17,6 +17,7 @@ int listen_net(const char* ip, const char* port, const unsigned short int protoc
 	int listener = 0;
 	if (protocol == 0) {listener = socket(AF_INET, SOCK_STREAM, 0);} // TCP
 	else if (protocol == 1) {listener = socket(AF_INET, SOCK_DGRAM, 0);} // UDP
+	else {return -1;}
 	const int enable = 1;
 	int netbuf_size = 1024 * 1024;
 	setsockopt(listener, SOL_SOCKET, SO_SNDBUF, (char*)&netbuf_size, sizeof(netbuf_size));
@@ -35,7 +36,7 @@ int accept_net(int listener) {
 	return accept(listener, 0, 0);
 }
 
-int connect_net(const char* ip, const char* port, const unsigned short int protocol) { // 0 for TCP | 1 for UDP
+int connect_net(const char* ip, const char* port, const unsigned short int protocol /* 0 - TCP | 1 - UDP*/ ) {
 	#ifdef __WIN32
 		WSADATA wsa;
 		WSAStartup(MAKEWORD(2,2), &wsa);
@@ -65,7 +66,7 @@ int recv_net(int socket, char* buf, int size) {
 	return recv(socket, buf, size, 0);
 }
 
-void resolve_net(const char* domain, const char* port, char* ipOutput/*16 char*/) {
+void resolve_net(const char* domain, const char* port, char* ipOutput /* 16 chars */ ) {
 	#ifdef __WIN32
 		WSADATA wsaData;
 		WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -92,4 +93,36 @@ int close_net(int conn) {
 	#elif __linux__
 		return close(conn);
 	#endif
+}
+
+unsigned short int socks5_connect(int sock, const char *ip, unsigned short port) {
+    char buf[64];
+
+    // Handshake
+    buf[0] = 0x05; // version
+    buf[1] = 0x01; // 1 Authentication method
+    buf[2] = 0x00; // No auth
+    send_net(sock, buf, 3);
+    
+    // Handshake result
+    recv_net(sock, buf, 2);
+    if (buf[1] != 0x00) {
+        return 1;
+    }
+
+    // Connect
+    buf[0] = 0x05; // SOCKS5
+    buf[1] = 0x01; // CMD_CONNECT
+    buf[2] = 0x00; // RSV
+    buf[3] = 0x01; // addr IPv4
+    inet_pton(AF_INET, host, &buf[4]); // IP addr
+    buf[8] = (port >> 8) & 0xFF;
+    buf[9] = port & 0xFF;
+    send_net(sock, buf, 10);
+    recv_net(sock, buf, 10);
+    // Connection result
+    if (buf[1] != 0x00) {
+        return (unsigned short int)buf[1];
+    }
+    return 0;
 }
