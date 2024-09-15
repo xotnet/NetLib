@@ -1,4 +1,4 @@
-C network lib for **Linux** and **Windows**
+C multiplatform network(TCP/UDP) lib for server and client
 
 
 **```CLIENT```**
