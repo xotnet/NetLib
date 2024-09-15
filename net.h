@@ -115,7 +115,7 @@ unsigned short int socks5_connect(int sock, const char *ip, unsigned short port)
     buf[1] = 0x01; // CMD_CONNECT
     buf[2] = 0x00; // RSV
     buf[3] = 0x01; // addr IPv4
-    inet_pton(AF_INET, host, &buf[4]); // IP addr
+    inet_pton(AF_INET, ip, &buf[4]); // IP addr
     buf[8] = (port >> 8) & 0xFF;
     buf[9] = port & 0xFF;
     send_net(sock, buf, 10);
