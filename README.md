@@ -5,6 +5,8 @@ C multiplatform network(TCP/UDP) lib for server and client
 
 **connect_net**(const char* ip, const char* port, const unsigned short int protocol) - **connect to the server**
 
+**socks5_connect**(int socket, char* ip, unsigned short int port) - **connect to remote host through socket connected to proxy server**
+
 **```SERVER```**
 
 **listen_net**(const char* ip, const char* port, const unsigned short int protocol) - **create listening server**
