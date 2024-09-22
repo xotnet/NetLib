@@ -80,11 +80,11 @@ void resolve_net(const char* domain, const char* port, char* ipOutput /* 16 char
 	strcpy(ipOutput, ipstr);
 }
 
-char* getPeerIp_net(int socket) {
+void getPeerIp_net(int socket, char* ip) {
 	struct sockaddr_in client_addr;
 	socklen_t addr_len = sizeof(client_addr);
 	getpeername(socket, (struct sockaddr *)&client_addr, &addr_len);
-	return inet_ntoa(client_addr.sin_addr);
+	strcpy(ip, inet_ntoa(client_addr.sin_addr));
 }
 
 int close_net(int conn) {
@@ -98,19 +98,16 @@ int close_net(int conn) {
 unsigned short int socks5_connect(int sock, const char *ip, unsigned short port) {
     char buf[64];
 
-    // Handshake
     buf[0] = 0x05; // version
     buf[1] = 0x01; // 1 Authentication method
     buf[2] = 0x00; // No auth
     send_net(sock, buf, 3);
     
-    // Handshake result
     recv_net(sock, buf, 2);
     if (buf[1] != 0x00) {
         return 1;
     }
 
-    // Connect
     buf[0] = 0x05; // SOCKS5
     buf[1] = 0x01; // CMD_CONNECT
     buf[2] = 0x00; // RSV
