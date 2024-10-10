@@ -107,8 +107,9 @@ uint8_t socks5_connect(int32_t sock, const char *ip, uint16_t port) {
     }
     return 0;
 }
+
 char dnsIP[16] = "1.1.1.1";
-enum dnsType {dnsANY, dnsA = 1, dnsNS, dnsMD, dnsMF, dnsCNAME, dnsSOA, dnsMB, dnsMG, dnsMR, dnsNX=15, dnsTXT=16};
+enum dnsType {dnsANY, dnsA = 1, dnsNS, dnsMD, dnsMF, dnsCNAME, dnsSOA, dnsMB, dnsMG, dnsMR, dnsMX=15, dnsTXT=16};
 void resolve_net(char* domain, char* output, uint8_t nsType) {
 	int32_t conn = connect_net(dnsIP, "53", 1);
 	char buf[128];
@@ -138,7 +139,8 @@ void resolve_net(char* domain, char* output, uint8_t nsType) {
     buf[pos+4] = 0x01;
     send_net(conn, buf, pos+5);
     memset(buf, 0, 128);
-    recv_net(conn, buf, 128);
+    if (recv_net(conn, buf, 128) < 1) {strcpy(output, "DNS server error"); return;}
+    if ((buf[6] << 8) + buf[7] == 0) {strcpy(output, "DNS server error"); return;}
     uint16_t answer_start = 12 + strlen(buf+12) + 5 + 12;
 	if (nsType == dnsA) {
 		char ipbytes[4];
