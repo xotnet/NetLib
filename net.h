@@ -139,10 +139,15 @@ void resolve_net(char* domain, char* output, uint8_t nsType) {
     buf[pos+4] = 0x01;
     send_net(conn, buf, pos+5);
     memset(buf, 0, 128);
-    if (recv_net(conn, buf, 128) < 1) {strcpy(output, "DNS server error"); return;}
-    if ((buf[6] << 8) + buf[7] == 0) {strcpy(output, "DNS server error"); return;}
-    uint16_t answer_start = 12 + strlen(buf+12) + 5 + 12;
+    recv_net(conn, buf, 128);
+    if ((buf[6] << 8) + buf[7] == 0) {close_net(conn); strcpy(output, "No dns results"); return;}
+    uint16_t answer_start = 12 + nameLen + 18;
+    uint16_t dataLen = (buf[answer_start-2] << 8) | buf[answer_start-1];
 	if (nsType == dnsA) {
+		if (dataLen != 4) {
+			strcpy(output, "Domain type is't dnsA");
+			return;
+		}
 		char ipbytes[4];
 		strcpy(ipbytes, buf+answer_start);
 		inet_ntop(AF_INET, ipbytes, output, 15);
