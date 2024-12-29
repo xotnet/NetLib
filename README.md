@@ -1,5 +1,6 @@
-C multiplatform network(TCP/UDP) lib for server and client
+C/C++ multiplatform network(TCP/UDP) lib for server and client
 
+[Download library header](https://github.com/xotnet/NetLib/releases/latest/download/net.h)
 
 **```CLIENT```**
 ============================================
