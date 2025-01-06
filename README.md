@@ -30,4 +30,6 @@ C/C++ multiplatform network(TCP/UDP) lib for server and client
 
 **resolve_net**(char* domain, char* output, int nsType)
 > resolve_net("srv.slowdns.org", output, dnsSRV) - get srv record srv.slowdns.org and write to the output(128 bytes)
-> Avaiable nsTypes - dnsANY(only if the type is not known!), dnsA, dnsNS, dnsMD, dnsMF, dnsCNAME, dnsSOA, dnsMB, dnsMG, dnsMR, dnsMX, dnsTXT, dnsRP, dnsAFSDB, dnsAAAA, dnsLOC, dnsSRV, dnsHTTPS, dnsSPF, dnsCAA
+
+>Avaiable nsTypes - dnsANY(only if the type is not known!), dnsA, dnsNS, dnsMD, dnsMF, dnsCNAME, dnsSOA, dnsMB, dnsMG, dnsMR, dnsMX, dnsTXT, dnsRP, dnsAFSDB, dnsAAAA, dnsLOC, dnsSRV, dnsHTTPS, dnsSPF, dnsCAA
+
