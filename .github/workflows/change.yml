@@ -1,0 +1,30 @@
+name: Change
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+jobs:
+  change_text:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Update text in file
+        run: |
+          FILE_PATH="img/accept_net.png"
+
+          if [ -f "$FILE_PATH" ]; then
+            sed -i 's/1/temp_replace/g; s/2/1/g; s/temp_replace/2/g' "$FILE_PATH"
+          else
+            echo "File $FILE_PATH does not exist."
+          fi
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add img/accept_net.png
+          git commit -m "Change 1 to 2 and 2 to 1"
+          git push
