@@ -3,6 +3,8 @@ name: Change
 on:
   schedule:
     - cron: '0 * * * *'
+  pull_request:
+    branches: [ "main" ]
 jobs:
   change_text:
     runs-on: ubuntu-latest
