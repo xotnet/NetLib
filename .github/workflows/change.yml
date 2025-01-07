@@ -22,11 +22,3 @@ jobs:
           else
             echo "File $FILE_PATH does not exist."
           fi
-
-      - name: Commit changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add img/accept_net.png
-          git commit -m "Change 1 to 2 and 2 to 1"
-          git push
