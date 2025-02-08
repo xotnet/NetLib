@@ -4,8 +4,8 @@
 #else
 	#include <arpa/inet.h>
 	#include <unistd.h>
-	#include <string.h>
 #endif
+#include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
 
