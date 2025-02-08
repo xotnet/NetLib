@@ -4,11 +4,12 @@
 #else
 	#include <arpa/inet.h>
 	#include <unistd.h>
-	#include <netdb.h>
 	#include <string.h>
 #endif
-#include <stdlib.h>
 #include <stdint.h>
+#include <stdlib.h>
+
+void itos(int N, char* str);
 
 int32_t listen_net(const char* ip, const char* port, const uint8_t protocol /* 0 - TCP | 1 - UDP*/ ) {
 	#ifdef __WIN32
@@ -16,14 +17,11 @@ int32_t listen_net(const char* ip, const char* port, const uint8_t protocol /* 0
 		WSAStartup(MAKEWORD(2,2), &wsa);
 	#endif
 	int32_t listener = 0;
-	if (protocol == 0) {listener = socket(AF_INET, SOCK_STREAM, 0);} // TCP
-	else if (protocol == 1) {listener = socket(AF_INET, SOCK_DGRAM, 0);} // UDP
+	if (protocol == 0) {listener = socket(AF_INET, SOCK_STREAM, 0);}
+	else if (protocol == 1) {listener = socket(AF_INET, SOCK_DGRAM, 0);}
 	else {return -1;}
 	const uint8_t enable = 1;
-	int32_t netbuf_size = 1024 * 1024;
-	setsockopt(listener, SOL_SOCKET, SO_SNDBUF, (char*)&netbuf_size, sizeof(netbuf_size));
-	setsockopt(listener, SOL_SOCKET, SO_RCVBUF, (char*)&netbuf_size, sizeof(netbuf_size));
-	setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(uint8_t));
+	setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, (int8_t*)&enable, sizeof(uint8_t));
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(atoi(port));
@@ -45,8 +43,6 @@ int32_t connect_net(const char* ip, const char* port, const uint8_t protocol /* 
 	int32_t conn = 0;
 	if (protocol == 0) {conn = socket(AF_INET, SOCK_STREAM, 0);}
 	else if (protocol == 1) {conn = socket(AF_INET, SOCK_DGRAM, 0);}
-	const uint8_t enable = 1;
-	setsockopt(conn, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(uint8_t));
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(atoi(port));
@@ -145,20 +141,20 @@ void resolve_net(char* domain, char* output, uint16_t nsType) {
 		strcpy(ipbytes, buf+answer_start);
 		inet_ntop(AF_INET, ipbytes, output, 15);
 	} else if (nsType == dnsCAA) {
-		itoa(buf[answer_start], output, 10);
+		itos(buf[answer_start], output);
 		uint8_t outputLen = strlen(output);
 		*(output+outputLen) = ' ';
 		strcpy(output+outputLen+1, buf+answer_start+2);
 		*(output+outputLen+6) = ' ';
 		strcpy(output+outputLen+7, buf+answer_start+7);
 	} else if (nsType == dnsSRV) {
-		itoa((*(buf+answer_start) << 8) | (*(buf+answer_start+1) & 0xFF), output, 10);
+		itos((*(buf+answer_start) << 8) | (*(buf+answer_start+1) & 0xFF), output);
 		uint8_t p = 2;
 		uint8_t l;
 		for (uint8_t i = 1; i<3; i++) {
 			l = strlen(output);
 			*(output+l) = ' ';
-			itoa((*(buf+answer_start+p) << 8) | (*(buf+answer_start+p+1) & 0xFF), output+l+1, 10);
+			itos((*(buf+answer_start+p) << 8) | (*(buf+answer_start+p+1) & 0xFF), output+l+1);
 			p = p+2;
 		}
 		l = strlen(output);
@@ -193,4 +189,24 @@ void resolve_net(char* domain, char* output, uint16_t nsType) {
 		}
     }
     close_net(conn);
+}
+
+void itos(int N, char* str) {
+    int i = 0;
+    int sign = N;
+    if (N < 0)
+        N = -N;
+    while (N > 0) {
+        str[i++] = N % 10 + '0';
+      	N /= 10;
+    } 
+    if (sign < 0) {
+        str[i++] = '-';
+    }
+    str[i] = '\0';
+    for (int j = 0, k = i - 1; j < k; j++, k--) {
+        char temp = str[j];
+        str[j] = str[k];
+        str[k] = temp;
+    }
 }
