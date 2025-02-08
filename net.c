@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-void itos(int N, char* str);
+void itos(int32_t N, char* str);
 
 int32_t listen_net(const char* ip, const char* port, const uint8_t protocol /* 0 - TCP | 1 - UDP*/ ) {
 	#ifdef __WIN32
@@ -191,9 +191,9 @@ void resolve_net(char* domain, char* output, uint16_t nsType) {
     close_net(conn);
 }
 
-void itos(int N, char* str) {
-    int i = 0;
-    int sign = N;
+void itos(int32_t N, char* str) {
+    int16_t i = 0;
+    int32_t sign = N;
     if (N < 0)
         N = -N;
     while (N > 0) {
@@ -204,7 +204,7 @@ void itos(int N, char* str) {
         str[i++] = '-';
     }
     str[i] = '\0';
-    for (int j = 0, k = i - 1; j < k; j++, k--) {
+    for (int32_t j = 0, k = i - 1; j < k; j++, k--) {
         char temp = str[j];
         str[j] = str[k];
         str[k] = temp;
